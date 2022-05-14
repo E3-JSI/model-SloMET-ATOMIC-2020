@@ -73,20 +73,19 @@ AAAI Conference on Artificial Intelligence, 2021
 ## 🚧 Work In Progress
 
 - [x] Setup script
-- [x] Folder structure
-- [ ] Shema examples
-- [ ] Database connection
-- [ ] Model examples
-- [ ] Tests examples
-- [ ] Auth integration
-- [ ] Cookies handling
-- [x] Dockerfile
+- [ ] Folder structure
+- [ ] Code for model training
+- [ ] Code for model evaluation
+- [ ] Add support for 3rd party models (outside huggingface)
+- [ ] Add `params.yaml` and modify the scripts to read the params from the file
+- [ ] Add DVC pipelines for model training and evaluation
+- [ ] Add scripts for storing and retrieving the data set
 
 ## 📣 Acknowledgments
 
 This work is developed by [Department of Artificial Intelligence][ailab] at [Jozef Stefan Institute][ijs].
 
-The work is supported by the Slovenian Research Agency and the EU Horizon 2020 project [Humane AI NET][humaneai] (H2020-ICT-952026).
+The work is supported by the Slovenian Research Agency and the [RSDO][rsdo] project.
 
 [python]: https://www.python.org/
 [conda]: https://www.anaconda.com/
@@ -95,3 +94,4 @@ The work is supported by the Slovenian Research Agency and the EU Horizon 2020 p
 [official-comet-atomic]: https://www.semanticscholar.org/paper/COMET-ATOMIC-2020%3A-On-Symbolic-and-Neural-Knowledge-Hwang-Bhagavatula/e39503e01ebb108c6773948a24ca798cd444eb62
 [ailab]: http://ailab.ijs.si/
 [ijs]: https://www.ijs.si/
+[rsdo]: https://www.cjvt.si/rsdo/en/project/

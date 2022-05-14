@@ -1,17 +1,21 @@
+model:
+  model_name: macedonizer/sl-gpt2
+
 train:
+  SEED: 42
   TRAIN_BATCH_SIZE: 32
   VALID_BATCH_SIZE: 32
   TRAIN_EPOCHS: 3
   VALID_EPOCHS: 1
   LEARNING_RATE: 0.00005
-  SEED: 42
   TRAIN_DATA_PATH: ./data/atomic_train.tsv
   VALID_DATA_PATH: ./data/atomic_dev.tsv
+  PRED_FILE: ""
   OUT_DIR: ./results
   DO_TRAIN: True
   DO_PRED: True
 
-eval:
-  GPT2_MODEL: macedonizer/sl-gpt2
-  PRED_FILE: ./data/atomic_test.tsv
-  TOP_K: 40
+test:
+  TEST_BATCH_SIZE: 64
+  TEST_DATA_PATH: ./data/atomic_test.tsv
+  TEST_TOP_K: 40
