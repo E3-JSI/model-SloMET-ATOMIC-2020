@@ -1,37 +1,39 @@
+import os
+import re
+import json
 import argparse
-import numpy as np
+import pandas as pd
 from nltk.translate.bleu_score import sentence_bleu
-from utils import read_jsonl, remove_prefix, write_jsonl
+from utils.utils import read_jsonl, write_jsonl
 from evaluation.eval import QGEvalCap
 from tabulate import tabulate
-import json
-import os
-from collections import defaultdict
-import random
 
-def get_reference_sentences(filename):
-    result = []
-    with open(filename) as file:
-        for line in file:
-            result.append([x.strip() for x in line.split('\t')[1].split('|')])
-    return result
+from collections import defaultdict
+
+
+def retrieve_ref_data(test_file_path):
+    df = pd.read_csv(test_file_path, encoding="utf-8", sep="\t")
+    return [
+        {
+            "head": row.Index[0],
+            "relation": row.Index[1],
+            "references": list(filter(lambda x: not pd.isnull(x), row.tail_event)),
+        }
+        for row in df.groupby(["head_event", "relation"]).agg(list).itertuples()
+    ]
+
+
+def get_reference_sentences(ref_data):
+    return [ref["references"] for ref in ref_data]
+
 
 def postprocess(sentence):
     return sentence
 
-def get_heads_and_relations(filename):
-    result = []
-    with open(filename) as file:
-        for line in file:
-            line = line.split('\t')[0]
-            head_event = line.split('@@')[0].strip()
-            relation = line.split('@@')[1].strip()
-            to_add = {
-                'head': head_event,
-                'relation': relation
-            }
-            result.append(to_add)
-    return result
+
+def get_heads_and_relations(ref_data):
+    return [{"head": ref["head"], "relation": ref["relation"]} for ref in ref_data]
+
 
 def get_hypothesises(filename):
     result = []
@@ -39,21 +41,30 @@ def get_hypothesises(filename):
 
     with open(filename) as file:
         for line in file:
-            result.append(json.loads(line)["greedy"])
+            result.append(
+                [
+                    re.sub(r"[PAD]", "", gen.split("[GEN]")[1]).strip()
+                    for gen in json.loads(line)["generations"]
+                ]
+            )
     return result
 
+
 def preprocess_generations(args):
-    input_file = args.input_file
+    test_file_path = args.test_file_path
+    pred_file_path = args.pred_file_path
 
-    outfile_path = os.path.join(os.path.dirname(input_file), os.path.basename(input_file).split('.')[0] + "_gens.jsonl")
+    outfile_path = os.path.join(
+        os.path.dirname(pred_file_path),
+        os.path.basename(pred_file_path).split(".")[0] + "_gens.jsonl",
+    )
 
-    outfile = open(outfile_path, 'w')
+    outfile = open(outfile_path, "w")
 
-    references_list = get_reference_sentences('test.tsv')
-    heads_relations = get_heads_and_relations('test.tsv')
-    hypothesises = get_hypothesises(args.input_file)
-
-    idx = 0
+    ref_data = retrieve_ref_data(test_file_path)
+    references_list = get_reference_sentences(ref_data)
+    heads_relations = get_heads_and_relations(ref_data)
+    hypothesises = get_hypothesises(pred_file_path)
 
     total_bleu_1 = 0
     total_bleu_2 = 0
@@ -64,18 +75,20 @@ def preprocess_generations(args):
 
     count = 0
 
-    for head_relation, references, hypothesis in zip(heads_relations, references_list, hypothesises):
+    for head_relation, references, hypothesis in zip(
+        heads_relations, references_list, hypothesises
+    ):
         bleu_1 = sentence_bleu(references, hypothesis, weights=[1.0])
         bleu_2 = sentence_bleu(references, hypothesis, weights=[0.5, 0.5])
         bleu_3 = sentence_bleu(references, hypothesis, weights=[0.34, 0.33, 0.33])
         bleu_4 = sentence_bleu(references, hypothesis)
 
         result = {
-            'generation': postprocess(hypothesis),
-            'references': [postprocess(reference) for reference in references],
-            'input': head_relation
+            "generation": postprocess(hypothesis),
+            "references": [postprocess(reference) for reference in references],
+            "input": head_relation,
         }
-        if hypothesis != 'none':
+        if hypothesis != "none":
             total_bleu_1 += bleu_1
             total_bleu_2 += bleu_2
             total_bleu_3 += bleu_3
@@ -87,34 +100,43 @@ def preprocess_generations(args):
             count += 1
 
         outfile.write(json.dumps(result) + "\n")
-    print('gens non-none', count)
-    outfile_scores = open(os.path.join(os.path.dirname(input_file), os.path.basename(input_file).split('.')[0] + "_scores.jsonl"), 'w')
+    print("gens non-none", count)
+    outfile_scores = open(
+        os.path.join(
+            os.path.dirname(pred_file_path),
+            os.path.basename(pred_file_path).split(".")[0] + "_scores.jsonl",
+        ),
+        "w",
+    )
 
     summary = {
-        'bleu1': total_bleu_1 / count,
-        'bleu2': total_bleu_2 / count,
-        'bleu3': total_bleu_3 / count,
-        'bleu4': total_bleu_4 / count
+        "bleu1": total_bleu_1 / count,
+        "bleu2": total_bleu_2 / count,
+        "bleu3": total_bleu_3 / count,
+        "bleu4": total_bleu_4 / count,
     }
 
     for relation in relation_bleu_1:
-        summary[relation] = relation_bleu_1[relation]["total"] / relation_bleu_1[relation]["count"]
+        summary[relation] = (
+            relation_bleu_1[relation]["total"] / relation_bleu_1[relation]["count"]
+        )
 
     outfile_scores.write(json.dumps(summary) + "\n")
     excel_str = ""
     for key in summary:
-        excel_str += str(key) + '\t'
+        excel_str += str(key) + "\t"
     outfile_scores.write(excel_str.strip())
     outfile_scores.write("\n")
     excel_str = ""
     for key in summary:
-        excel_str += str(summary[key]) + '\t'
+        excel_str += str(summary[key]) + "\t"
 
     outfile_scores.write(excel_str.strip())
 
     print(f"Saved gens in {outfile_path}")
 
-    return(os.path.abspath(outfile_path))
+    return os.path.abspath(outfile_path)
+
 
 def get_tuple(l):
     gens = [l["generation"]]
@@ -123,8 +145,10 @@ def get_tuple(l):
     relation = l["input"]["relation"]
     return {"head": head, "relation": relation, "tails": tails, "generations": gens}
 
+
 def get2(l):
     return list(zip(*l))[1]
+
 
 def topk_eval(model_name, data, k):
 
@@ -181,38 +205,42 @@ def eval(data_file, model_name):
 
     return topk_eval(model_name, data, k=1)
 
+
 def toRow(name, results, columns):
-    return [name] + [format(float(results[c]), '#.3f') for c in columns]
+    return [name] + [format(float(results[c]), "#.3f") for c in columns]
+
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--input_file', type=str, help='Results file on ATOMIC2020 test set')
-
+    parser.add_argument("--test_file_path", type=str, help="The test file path")
+    parser.add_argument("--pred_file_path", type=str, help="The prediction file path")
     args = parser.parse_args()
 
     generations_file = preprocess_generations(args)
 
     input_file = generations_file
 
-    expts = [
-        [input_file,  os.path.basename(input_file).split('.')[0]]
-    ]
+    expts = [[input_file, os.path.basename(input_file).split(".")[0]]]
 
     scores_per_model = []
     add_column = True
     for f, m in expts:
-        result_file = './results/{}_scores.jsonl'.format(m)
+        result_file = "./results/{}_scores.jsonl".format(m)
 
         s, scores, instances = eval(f, model_name=m)
         if s == None:
             print("Skipping ", m)
             continue
 
-
         for k in scores.keys():
             assert len(scores[k]) == len(instances)
 
-        results = {"model": m, "scores": s, "all_scores": scores, "instances": instances}
+        results = {
+            "model": m,
+            "scores": s,
+            "all_scores": scores,
+            "instances": instances,
+        }
         write_jsonl(result_file, [results])
 
         scores_per_model.append(results)
@@ -224,12 +252,14 @@ def main():
         rows.append(s_row)
 
     import datetime
+
     date = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
     print(scores_per_model)
 
-    write_jsonl('./results/scores_{}.jsonl'.format(date), scores_per_model)
-    print(tabulate(rows, headers='firstrow', tablefmt='latex', floatfmt='#.3f'))
-    print(tabulate(rows, tablefmt='tsv', floatfmt='#.3f'))
+    write_jsonl("./results/scores_{}.jsonl".format(date), scores_per_model)
+    print(tabulate(rows, headers="firstrow", tablefmt="latex", floatfmt="#.3f"))
+    print(tabulate(rows, tablefmt="tsv", floatfmt="#.3f"))
+
 
 if __name__ == "__main__":
     main()

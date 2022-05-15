@@ -60,6 +60,41 @@ To install the requirements run:
 pip install -e .
 ```
 
+## Experiment setting
+
+```bash
+# model training script
+python scripts/train_comet_gpt2.py \
+    --train_data_path=./data/atomic_train.tsv \
+    --valid_data_path=./data/atomic_dev.tsv \
+    --models_dir_path=./models
+
+# model testing script
+python scripts/test_comet_gpt2.py \
+    --test_data_path=./data/atomic_test.tsv \
+    --models_dir_path=./models/checkpoint_latest \
+    --results_dir_path=./results
+
+# model evaluation script
+python scripts/eval_comet_gpt2.py \
+    --test_file_path=./data/atomic_test.tsv \
+    --pred_file_path=./results/pred_generations.jsonl
+```
+
+## Using the trained model
+
+```python
+# Importing the GPT2 modules from huggingface/transformers
+from transformers import GPT2LMHeadModel, GPT2Tokenizer
+
+# define the directory path that contains the model data
+MODEL_DIR_PATH = "./models/checkpoint_latest"
+
+# initialize the model and tokenizer with the trained data
+model = GPT2LMHeadModel.from_pretrained(MODEL_DATA_PATH)
+tokenizer = GPT2Tokenizer.from_pretrained(MODEL_DATA_PATH)
+```
+
 ## 📚 Papers
 
 TODO

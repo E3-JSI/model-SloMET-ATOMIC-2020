@@ -163,5 +163,7 @@ cython_debug/
 #.idea/
 
 data/
+models/
 results/
 wandb/
+.vscode/
