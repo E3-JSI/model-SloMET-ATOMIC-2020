@@ -43,10 +43,10 @@ Install [conda][conda], a program for creating python virtual environments. Then
 
 ```bash
 # create a new virtual environment
-conda create --name fastapi-ml python=3.8 pip
+conda create --name slomet2020 python=3.8 pip
 
 # activate the environment
-conda activate fastapi-ml
+conda activate slomet2020
 
 # deactivate the environment
 deactivate
@@ -60,7 +60,15 @@ To install the requirements run:
 pip install -e .
 ```
 
-## Experiment setting
+## 💽 Data
+
+To get the data react to the project maintainer.
+
+**NOTE:** The data will be made publicly available. Stay tuned for more!
+
+## 📊 Experiments
+
+To run the experiments, run the folowing commands:
 
 ```bash
 # model training script
@@ -81,7 +89,7 @@ python scripts/eval_comet_gpt2.py \
     --pred_file_path=./results/pred_generations.jsonl
 ```
 
-## Using the trained model
+### Using the trained model
 
 ```python
 # Importing the GPT2 modules from huggingface/transformers
@@ -108,11 +116,12 @@ AAAI Conference on Artificial Intelligence, 2021
 ## 🚧 Work In Progress
 
 - [x] Setup script
-- [ ] Folder structure
-- [ ] Code for model training
+- [x] Folder structure
+- [x] Code for model training
+- [x] Code for model testing
 - [ ] Code for model evaluation
 - [ ] Add support for 3rd party models (outside huggingface)
-- [ ] Add `params.yaml` and modify the scripts to read the params from the file
+- [x] Add `params.yaml` and modify the scripts to read the params from the file
 - [ ] Add DVC pipelines for model training and evaluation
 - [ ] Add scripts for storing and retrieving the data set
 
