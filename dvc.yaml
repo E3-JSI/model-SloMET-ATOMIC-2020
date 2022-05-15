@@ -1,0 +1,41 @@
+stages:
+  train:
+    cmd: python scripts/train_comet_gpt2.py --train_data_path=./data/atomic_train.tsv --valid_data_path=./data/atomic_dev.tsv --models_dir_path=./models
+    deps:
+      - scripts/train_comet_gpt2.py
+      - data/atomic_train.tsv
+      - data/atomic_dev.tsv
+    params:
+      - model.model_name
+      - model.IN_LEN
+      - model.OUT_LEN
+      - train.SEED
+      - train.TRAIN_BATCH_SIZE
+      - train.VALID_BATCH_SIZE
+      - train.TRAIN_EPOCHS
+      - train.VALID_EPOCHS
+      - train.LEARNING_RATE
+    outs:
+      - models/checkpoint_latest
+
+  test:
+    cmd: python scripts/test_comet_gpt2.py --test_data_path=./data/atomic_test.tsv --models_dir_path=./models/checkpoint_latest --results_dir_path=./results
+    deps:
+      - scripts/test_comet_gpt2.py
+      - models/checkpoint_latest
+      - data/atomic_test.tsv
+    params:
+      - test.TEST_BATCH_SIZE
+      - test.TEST_TOP_K
+    outs:
+      - results/pred_generations.jsonl
+
+  eval:
+    cmd: python scripts/eval_comet_gpt2.py --test_file_path=./data/atomic_test.tsv --pred_file_path=./results/pred_generations.jsonl
+    deps:
+      - scripts/eval_comet_gpt2.py
+      - scripts/evaluation
+      - data/atomic_test.tsv
+      - results/pred_generations.jsonl
+    outs:
+      - results/pred_generations_scores.jsonl

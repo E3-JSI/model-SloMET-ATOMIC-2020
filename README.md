@@ -89,6 +89,18 @@ python scripts/eval_comet_gpt2.py \
     --pred_file_path=./results/pred_generations.jsonl
 ```
 
+#### 🦉 Using DVC
+
+An alternative way of running the whole experiment is by using [DVC][dvc]. To do this,
+simply run:
+
+```bash
+dvc exp run
+```
+
+This command will read the `dvc.yaml` file and execute the stages accordingly, taking
+any dependencies into consideration.
+
 ### Using the trained model
 
 ```python
