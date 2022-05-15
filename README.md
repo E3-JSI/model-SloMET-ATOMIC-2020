@@ -62,7 +62,7 @@ pip install -e .
 
 ## 💽 Data
 
-To get the data react to the project maintainer.
+To get the data reach out to the project's maintainer.
 
 **NOTE:** The data will be made publicly available. Stay tuned for more!
 
