@@ -11,7 +11,6 @@ stages:
       - model.OUT_LEN
       - train.SEED
       - train.TRAIN_BATCH_SIZE
-      - train.VALID_BATCH_SIZE
       - train.TRAIN_EPOCHS
       - train.VALID_EPOCHS
       - train.LEARNING_RATE
@@ -25,7 +24,6 @@ stages:
       - models/checkpoint_latest
       - data/atomic_test.tsv
     params:
-      - test.TEST_BATCH_SIZE
       - test.TEST_TOP_K
     outs:
       - results/pred_generations.jsonl

@@ -89,7 +89,7 @@ def main():
 
     config = wandb.config
     config.TRAIN_BATCH_SIZE = int(params["train"]["TRAIN_BATCH_SIZE"])
-    config.VALID_BATCH_SIZE = int(params["train"]["VALID_BATCH_SIZE"])
+    config.VALID_BATCH_SIZE = 1
     config.TRAIN_EPOCHS = int(params["train"]["TRAIN_EPOCHS"])
     config.VALID_EPOCHS = int(params["train"]["VALID_EPOCHS"])
     config.LEARNING_RATE = float(params["train"]["LEARNING_RATE"])
@@ -195,7 +195,7 @@ def main():
     )
     train_dataset.tail_event = train_dataset.tail_event + " [EOS]"
     training_set = KGDataset(
-        dataframe=train_dataset, tokenizer=tokenizer, source_len=config.OUT_LEN
+        dataframe=train_dataset, tokenizer=tokenizer, source_len=config.IN_LEN
     )
     training_loader = DataLoader(
         training_set,
@@ -219,7 +219,7 @@ def main():
         dataframe=val_dataset.head(2000),
         tokenizer=tokenizer,
         source_len=config.IN_LEN,
-        summ_len=config.OUT_LEN + config.IN_LEN,
+        summ_len=config.OUT_LEN,
         is_eval=True,
     )
     val_loader_mini = DataLoader(

@@ -9,12 +9,12 @@ import pandas as pd
 
 def createAndOpen(filename, mode):
     os.makedirs(os.path.dirname(filename), exist_ok=True)
-    return open(filename, mode)
+    return open(filename, mode, encoding="utf8")
 
 
 def read_csv(input_file, quotechar='"', delimiter=",", skip_header=False):
     """Reads a tab separated value file."""
-    with open(input_file, "r") as f:
+    with open(input_file, "r", encoding="utf8") as f:
         reader = csv.reader(
             f,
             delimiter=delimiter,
@@ -68,7 +68,7 @@ def write_csv(filename, data, fieldnames):
 
 def read_jsonl(filename):
     data = []
-    with open(filename, "r") as f:
+    with open(filename, "r", encoding="utf8") as f:
         for line in f:
             data.append(json.loads(line))
     return data
@@ -82,7 +82,7 @@ def write_items(output_file, items):
 
 
 def write_jsonl(f, d):
-    write_items(f, [json.dumps(r) for r in d])
+    write_items(f, [json.dumps(r, ensure_ascii="utf8") for r in d])
 
 
 def count_relation(d):

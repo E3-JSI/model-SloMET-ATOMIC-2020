@@ -60,13 +60,13 @@ To install the requirements run:
 pip install -e .
 ```
 
-## 💽 Data
+## 🗃️ Data
 
 To get the data reach out to the project's maintainer.
 
 **NOTE:** The data will be made publicly available. Stay tuned for more!
 
-## 📊 Experiments
+## ⚗️ Experiments
 
 To run the experiments, run the folowing commands:
 
@@ -89,7 +89,7 @@ python scripts/eval_comet_gpt2.py \
     --pred_file_path=./results/pred_generations.jsonl
 ```
 
-#### 🦉 Using DVC
+### 🦉 Using DVC
 
 An alternative way of running the whole experiment is by using [DVC][dvc]. To do this,
 simply run:
@@ -101,7 +101,9 @@ dvc exp run
 This command will read the `dvc.yaml` file and execute the stages accordingly, taking
 any dependencies into consideration.
 
-### Using the trained model
+## 📦️ Integrated models
+
+## 🚀 Using the trained model
 
 ```python
 # Importing the GPT2 modules from huggingface/transformers
@@ -130,11 +132,11 @@ AAAI Conference on Artificial Intelligence, 2021
 - [x] Setup script
 - [x] Folder structure
 - [x] Code for model training
-- [x] Code for model testing
+- [x] Code for model prediction
 - [ ] Code for model evaluation
 - [ ] Add support for 3rd party models (outside huggingface)
 - [x] Add `params.yaml` and modify the scripts to read the params from the file
-- [ ] Add DVC pipelines for model training and evaluation
+- [x] Add DVC pipelines for model training and evaluation
 - [ ] Add scripts for storing and retrieving the data set
 
 ## 📣 Acknowledgments

@@ -1,5 +1,4 @@
 import os
-import re
 import json
 import argparse
 import pandas as pd
@@ -41,12 +40,7 @@ def get_hypothesises(filename):
 
     with open(filename) as file:
         for line in file:
-            result.append(
-                [
-                    re.sub(r"[PAD]", "", gen.split("[GEN]")[1]).strip()
-                    for gen in json.loads(line)["generations"]
-                ]
-            )
+            result.append(json.loads(line)["greedy"])
     return result
 
 
@@ -59,79 +53,67 @@ def preprocess_generations(args):
         os.path.basename(pred_file_path).split(".")[0] + "_gens.jsonl",
     )
 
-    outfile = open(outfile_path, "w")
+    with open(outfile_path, "w", encoding="utf8") as outfile:
 
-    ref_data = retrieve_ref_data(test_file_path)
-    references_list = get_reference_sentences(ref_data)
-    heads_relations = get_heads_and_relations(ref_data)
-    hypothesises = get_hypothesises(pred_file_path)
+        ref_data = retrieve_ref_data(test_file_path)
+        references_list = get_reference_sentences(ref_data)
+        heads_relations = get_heads_and_relations(ref_data)
+        hypothesises = get_hypothesises(pred_file_path)
 
-    total_bleu_1 = 0
-    total_bleu_2 = 0
-    total_bleu_3 = 0
-    total_bleu_4 = 0
+        total_bleu_1 = 0
+        total_bleu_2 = 0
+        total_bleu_3 = 0
+        total_bleu_4 = 0
 
-    relation_bleu_1 = defaultdict(lambda: defaultdict(int))
+        relation_bleu_1 = defaultdict(lambda: defaultdict(int))
 
-    count = 0
+        count = 0
 
-    for head_relation, references, hypothesis in zip(
-        heads_relations, references_list, hypothesises
-    ):
-        bleu_1 = sentence_bleu(references, hypothesis, weights=[1.0])
-        bleu_2 = sentence_bleu(references, hypothesis, weights=[0.5, 0.5])
-        bleu_3 = sentence_bleu(references, hypothesis, weights=[0.34, 0.33, 0.33])
-        bleu_4 = sentence_bleu(references, hypothesis)
+        for head_relation, references, hypothesis in zip(
+            heads_relations, references_list, hypothesises
+        ):
+            bleu_1 = sentence_bleu(references, hypothesis, weights=[1.0])
+            bleu_2 = sentence_bleu(references, hypothesis, weights=[0.5, 0.5])
+            bleu_3 = sentence_bleu(references, hypothesis, weights=[0.34, 0.33, 0.33])
+            bleu_4 = sentence_bleu(references, hypothesis)
 
-        result = {
-            "generation": postprocess(hypothesis),
-            "references": [postprocess(reference) for reference in references],
-            "input": head_relation,
-        }
-        if hypothesis != "none":
-            total_bleu_1 += bleu_1
-            total_bleu_2 += bleu_2
-            total_bleu_3 += bleu_3
-            total_bleu_4 += bleu_4
+            result = {
+                "generation": postprocess(hypothesis),
+                "references": [postprocess(reference) for reference in references],
+                "input": head_relation,
+            }
+            if hypothesis != "none":
+                total_bleu_1 += bleu_1
+                total_bleu_2 += bleu_2
+                total_bleu_3 += bleu_3
+                total_bleu_4 += bleu_4
 
-            relation_bleu_1[head_relation["relation"]]["total"] += bleu_1
-            relation_bleu_1[head_relation["relation"]]["count"] += 1
+                relation_bleu_1[head_relation["relation"]]["total"] += bleu_1
+                relation_bleu_1[head_relation["relation"]]["count"] += 1
 
-            count += 1
+                count += 1
 
-        outfile.write(json.dumps(result) + "\n")
-    print("gens non-none", count)
-    outfile_scores = open(
+            outfile.write(json.dumps(result, ensure_ascii=False) + "\n")
+
+    # save the BLEU values into the scores file
+    with open(
         os.path.join(
             os.path.dirname(pred_file_path),
             os.path.basename(pred_file_path).split(".")[0] + "_scores.jsonl",
         ),
         "w",
-    )
-
-    summary = {
-        "bleu1": total_bleu_1 / count,
-        "bleu2": total_bleu_2 / count,
-        "bleu3": total_bleu_3 / count,
-        "bleu4": total_bleu_4 / count,
-    }
-
-    for relation in relation_bleu_1:
-        summary[relation] = (
-            relation_bleu_1[relation]["total"] / relation_bleu_1[relation]["count"]
-        )
-
-    outfile_scores.write(json.dumps(summary) + "\n")
-    excel_str = ""
-    for key in summary:
-        excel_str += str(key) + "\t"
-    outfile_scores.write(excel_str.strip())
-    outfile_scores.write("\n")
-    excel_str = ""
-    for key in summary:
-        excel_str += str(summary[key]) + "\t"
-
-    outfile_scores.write(excel_str.strip())
+    ) as outfile_scores:
+        summary = {
+            "bleu1": total_bleu_1 / count,
+            "bleu2": total_bleu_2 / count,
+            "bleu3": total_bleu_3 / count,
+            "bleu4": total_bleu_4 / count,
+        }
+        for relation in relation_bleu_1:
+            summary[relation] = (
+                relation_bleu_1[relation]["total"] / relation_bleu_1[relation]["count"]
+            )
+        outfile_scores.write(json.dumps(summary, ensure_ascii=False) + "\n")
 
     print(f"Saved gens in {outfile_path}")
 
@@ -157,7 +139,6 @@ def topk_eval(model_name, data, k):
     instances = []
     topk_exact_match = []
     topk_exact_match_not_none = []
-    topk_bleu_score = []
 
     topk_is_head = []
 

@@ -2,7 +2,7 @@
 import torch
 
 # Import os for env varibles via Beaker
-import os
+import re
 
 # WandB – Import the wandb library
 import wandb
@@ -53,7 +53,6 @@ def train(epoch, tokenizer, model, device, loader, optimizer, val_loader=None):
         if iteration % 100 == 0 and val_loader != None:
             log_eval(tokenizer, model, device, val_loader)
             model.train()
-
 
 
 def validate(tokenizer, model, device, loader, max_length=50):
@@ -128,9 +127,8 @@ def beam_generations(tokenizer, model, device, loader, top_k=40, max_length=50):
                 num_beams=10,
             )
 
-            preds = [
-                tokenizer.decode(g, clean_up_tokenization_spaces=True)
-                for g in generated_ids
+            source = [
+                tokenizer.decode(s, clean_up_tokenization_spaces=True) for s in ids
             ]
             try:
                 target = [
@@ -138,12 +136,27 @@ def beam_generations(tokenizer, model, device, loader, top_k=40, max_length=50):
                 ]
             except:
                 target = [""]
-            source = [
-                tokenizer.decode(s, clean_up_tokenization_spaces=True) for s in ids
+
+            preds = [
+                tokenizer.decode(g, clean_up_tokenization_spaces=True)
+                for g in generated_ids
+            ]
+
+            head = " ".join(source[0].split(" ")[:-2])
+            relation = source[0].split(" ")[-2]
+            target = " ".join(target[0].split(" ")[:-1])
+            preds = [
+                re.sub(f"(\[EOS\]|\[PAD\])", "", pred.split("[GEN]")[1]).strip()
+                for pred in preds
             ]
 
             records.append(
-                {"source": source[0], "target": target[0], "generations": preds}
+                {
+                    "head": head,
+                    "relation": relation,
+                    "tail": target,
+                    "generations": preds,
+                }
             )
 
             if _ % 100 == 0:

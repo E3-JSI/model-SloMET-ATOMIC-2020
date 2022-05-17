@@ -1,0 +1,53 @@
+schema: '2.0'
+stages:
+  train:
+    cmd: python scripts/train_comet_gpt2.py --train_data_path=./data/atomic_train.tsv
+      --valid_data_path=./data/atomic_dev.tsv --models_dir_path=./models
+    deps:
+    - path: data/atomic_dev.tsv
+      md5: 96881c451979ffc2344f193c26b58ebc
+      size: 5486836
+    - path: data/atomic_train.tsv
+      md5: 1aa4a56de15986ff156a5f9916727a22
+      size: 55740025
+    - path: scripts/train_comet_gpt2.py
+      md5: bebacc0985db57e216bd5f4fb2b61ed2
+      size: 8363
+    params:
+      params.yaml:
+        model.IN_LEN: 40
+        model.OUT_LEN: 60
+        model.model_name: macedonizer/sl-gpt2
+        train.LEARNING_RATE: 1e-05
+        train.SEED: 42
+        train.TRAIN_BATCH_SIZE: 64
+        train.TRAIN_EPOCHS: 3
+        train.VALID_BATCH_SIZE: 64
+        train.VALID_EPOCHS: 1
+    outs:
+    - path: models/checkpoint_latest
+      md5: 1097de625e15fb9b485949b35c6d4071.dir
+      size: 517427625
+      nfiles: 7
+  test:
+    cmd: python scripts/test_comet_gpt2.py --test_data_path=./data/atomic_test.tsv
+      --models_dir_path=./models/checkpoint_latest --results_dir_path=./results
+    deps:
+    - path: data/atomic_test.tsv
+      md5: 80d038c7ce5794b9a338ea1ad4352c21
+      size: 8121289
+    - path: models/checkpoint_latest
+      md5: 1097de625e15fb9b485949b35c6d4071.dir
+      size: 517427625
+      nfiles: 7
+    - path: scripts/test_comet_gpt2.py
+      md5: 2ca4a925a29c1288fe7bc357d3ca24e4
+      size: 4936
+    params:
+      params.yaml:
+        test.TEST_BATCH_SIZE: 64
+        test.TEST_TOP_K: 40
+    outs:
+    - path: results/pred_generations.jsonl
+      md5: 9d96612d064e5cf9ac34a0a2a3dd44bf
+      size: 126945293

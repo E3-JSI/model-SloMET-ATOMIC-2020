@@ -1,10 +1,7 @@
-import os
 import time
-import argparse
 import torch
 from collections import defaultdict
-from transformers import BertTokenizer, BertModel, BertForMaskedLM
-import matplotlib
+from transformers import BertTokenizer, BertModel
 import matplotlib.pyplot as plt
 import numpy as np
 

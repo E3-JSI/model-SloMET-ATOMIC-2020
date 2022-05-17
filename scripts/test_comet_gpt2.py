@@ -12,9 +12,6 @@ from torch.utils.data import DataLoader
 # Importing the GPT2 modules from huggingface/transformers
 from transformers import GPT2LMHeadModel, GPT2Tokenizer
 
-# WandB – Import the wandb library
-import wandb
-
 from utils.utils import write_items
 from mosaic.infra.modeling import beam_generations
 from mosaic.datasets.KGDataset import KGDataset
@@ -46,6 +43,12 @@ def read_jsonl_lines(input_file: str) -> List[dict]:
     with open(input_file) as f:
         lines = f.readlines()
         return [json.loads(l.strip()) for l in lines]
+
+
+class Config:
+    """Configuration parameters container class"""
+
+    pass
 
 
 # ===============================================
@@ -85,12 +88,11 @@ def main():
     # Configure the process
     # ===========================================
 
-    wandb.init(project="gpt2_comet_atomic")
-
-    config = wandb.config
+    # replace wandb with a generic config class (we do not use it here)
+    config = Config()
     config.SEED = int(params["train"]["SEED"])
     config.TEST_TOP_K = int(params["test"]["TEST_TOP_K"])
-    config.TEST_BATCH_SIZE = int(params["test"]["TEST_BATCH_SIZE"])
+    config.TEST_BATCH_SIZE = 1
 
     config.IN_LEN = int(params["model"]["IN_LEN"])
     config.OUT_LEN = int(params["model"]["OUT_LEN"])
@@ -112,8 +114,6 @@ def main():
     logging.info("Move model to device {}".format(device))
     model = model.to(device)
 
-    wandb.watch(model, log="all")
-
     # ===========================================
     # Prepare the test set
     # ===========================================
@@ -131,7 +131,7 @@ def main():
         dataframe=test_dataset,
         tokenizer=tokenizer,
         source_len=config.IN_LEN,
-        summ_len=config.OUT_LEN + config.IN_LEN,
+        summ_len=config.OUT_LEN,
         is_eval=True,
     )
     test_loader = DataLoader(
@@ -156,11 +156,11 @@ def main():
         device=device,
         loader=test_loader,
         top_k=config.TEST_TOP_K,
-        max_length=config.OUT_LEN + config.IN_LEN,
+        max_length=config.OUT_LEN,
     )
     write_items(
         os.path.join(results_dir_path, "pred_generations.jsonl"),
-        [json.dumps(r) for r in pred_generations],
+        [json.dumps(r, ensure_ascii=False) for r in pred_generations],
     )
 
 

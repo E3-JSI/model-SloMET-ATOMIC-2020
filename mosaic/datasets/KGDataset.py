@@ -34,14 +34,14 @@ class KGDataset(Dataset):
         if self.is_eval:
             source = self.tokenizer.batch_encode_plus(
                 [text],
-                pad_to_max_length=True,
+                pad_to_max_length=False,
                 max_length=self.source_len,
                 return_tensors="pt",
                 truncation=True,
             )
             target = self.tokenizer.batch_encode_plus(
                 [ctext],
-                pad_to_max_length=True,
+                pad_to_max_length=False,
                 max_length=self.summ_len,
                 return_tensors="pt",
                 truncation=True,
