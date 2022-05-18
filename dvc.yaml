@@ -29,11 +29,12 @@ stages:
       - results/pred_generations.jsonl
 
   eval:
-    cmd: python scripts/eval_comet_gpt2.py --test_file_path=./data/atomic_test.tsv --pred_file_path=./results/pred_generations.jsonl
+    cmd: python scripts/eval_comet_gpt2.py --pred_file_path=./results/pred_generations.jsonl
     deps:
       - scripts/eval_comet_gpt2.py
       - scripts/evaluation
       - data/atomic_test.tsv
       - results/pred_generations.jsonl
-    outs:
-      - results/pred_generations_scores.jsonl
+    metrics:
+      - results/pred_generations_gens_scores.jsonl:
+          cache: false

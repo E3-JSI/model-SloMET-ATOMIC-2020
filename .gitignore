@@ -164,6 +164,7 @@ cython_debug/
 
 data/
 models/
-results/
 wandb/
 .vscode/
+
+results/scores_*
