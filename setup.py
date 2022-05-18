@@ -10,10 +10,10 @@ with open("requirements.txt", mode="r") as f:
 setup(
     name="slomet-atomic-2020",
     version="0.1.0",
-    description="The SLOmet-atomic 2020 experiment source code",
+    description="The SLOmet-Atomic 2020 experiment source code",
     long_description=long_description,
     long_description_content_type="text/markdown",
     packages=find_packages(),
     install_requires=[req for req in requirements if req[:2] != "# "],
-    setup_requires=["black"]
+    setup_requires=["black"],
 )

@@ -163,5 +163,8 @@ cython_debug/
 #.idea/
 
 data/
-results/
-Paper.pdf
+models/
+wandb/
+.vscode/
+
+results/scores_*

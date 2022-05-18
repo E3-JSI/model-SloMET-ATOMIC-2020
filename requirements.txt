@@ -17,4 +17,8 @@ conllu
 spacy
 inflect
 wandb
+bert-score
+tabulate
+nltk==3.5
+numpy
 dvc
