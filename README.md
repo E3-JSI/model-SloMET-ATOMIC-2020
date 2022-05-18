@@ -85,7 +85,6 @@ python scripts/test_comet_gpt2.py \
 
 # model evaluation script
 python scripts/eval_comet_gpt2.py \
-    --test_file_path=./data/atomic_test.tsv \
     --pred_file_path=./results/pred_generations.jsonl
 ```
 
@@ -101,9 +100,21 @@ dvc exp run
 This command will read the `dvc.yaml` file and execute the stages accordingly, taking
 any dependencies into consideration.
 
+### Results
+
+The results folder contain the files for both evaluating the generations and the
+evalution results. File `results/pred_generations_gens_scores.jsonl` show the
+performance of the model based on various metrics.
+
 ## 📦️ Integrated models
 
+This project support the following models:
+
+- [macedonizer/sl-gpt2][sl-gpt2]
+
 ## 🚀 Using the trained model
+
+When the model is trained, use the scripts below to load the model and tokenizer:
 
 ```python
 # Importing the GPT2 modules from huggingface/transformers
@@ -133,7 +144,7 @@ AAAI Conference on Artificial Intelligence, 2021
 - [x] Folder structure
 - [x] Code for model training
 - [x] Code for model prediction
-- [ ] Code for model evaluation
+- [x] Code for model evaluation
 - [ ] Add support for 3rd party models (outside huggingface)
 - [x] Add `params.yaml` and modify the scripts to read the params from the file
 - [x] Add DVC pipelines for model training and evaluation
@@ -149,6 +160,7 @@ The work is supported by the Slovenian Research Agency and the [RSDO][rsdo] proj
 [conda]: https://www.anaconda.com/
 [git]: https://git-scm.com/
 [dvc]: https://dvc.org/
+[sl-gpt2]: https://huggingface.co/macedonizer/sl-gpt2
 [official-comet-atomic]: https://www.semanticscholar.org/paper/COMET-ATOMIC-2020%3A-On-Symbolic-and-Neural-Knowledge-Hwang-Bhagavatula/e39503e01ebb108c6773948a24ca798cd444eb62
 [ailab]: http://ailab.ijs.si/
 [ijs]: https://www.ijs.si/
