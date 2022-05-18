@@ -130,13 +130,6 @@ def beam_generations(tokenizer, model, device, loader, top_k=40, max_length=50):
             source = [
                 tokenizer.decode(s, clean_up_tokenization_spaces=True) for s in ids
             ]
-            try:
-                target = [
-                    tokenizer.decode(t, clean_up_tokenization_spaces=True) for t in y
-                ]
-            except:
-                target = [""]
-
             preds = [
                 tokenizer.decode(g, clean_up_tokenization_spaces=True)
                 for g in generated_ids
@@ -144,7 +137,6 @@ def beam_generations(tokenizer, model, device, loader, top_k=40, max_length=50):
 
             head = " ".join(source[0].split(" ")[:-2])
             relation = source[0].split(" ")[-2]
-            target = " ".join(target[0].split(" ")[:-1])
             preds = [
                 re.sub(f"(\[EOS\]|\[PAD\])", "", pred.split("[GEN]")[1]).strip()
                 for pred in preds
@@ -154,7 +146,7 @@ def beam_generations(tokenizer, model, device, loader, top_k=40, max_length=50):
                 {
                     "head": head,
                     "relation": relation,
-                    "tail": target,
+                    "tails": [],
                     "generations": preds,
                 }
             )

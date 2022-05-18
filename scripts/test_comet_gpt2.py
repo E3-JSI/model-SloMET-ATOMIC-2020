@@ -1,4 +1,5 @@
 import os
+import re
 import yaml
 import json
 import argparse
@@ -39,10 +40,18 @@ logger.info(torch.cuda.device_count())
 # ===============================================
 
 
-def read_jsonl_lines(input_file: str) -> List[dict]:
-    with open(input_file) as f:
-        lines = f.readlines()
-        return [json.loads(l.strip()) for l in lines]
+def create_mapping_key(head, relation):
+    return f"{re.sub(' ', '', head)} @@ {relation}"
+
+
+def retrieve_ref_data(test_file_path):
+    df = pd.read_csv(test_file_path, encoding="utf8", sep="\t")
+    return {
+        create_mapping_key(row.Index[0], row.Index[1]): list(
+            filter(lambda x: not pd.isnull(x), row.tail_event)
+        )
+        for row in df.groupby(["head_event", "relation"]).agg(list).itertuples()
+    }
 
 
 class Config:
@@ -118,8 +127,8 @@ def main():
     # Prepare the test set
     # ===========================================
 
-    # prepare the test datasets
-    test_dataset = pd.read_csv(test_data_path, encoding="utf-8", sep="\t")
+    # prepare the test dataset
+    test_dataset = pd.read_csv(test_data_path, encoding="utf8", sep="\t")
     test_dataset = test_dataset.drop_duplicates(
         ["head_event", "relation"], ignore_index=True
     )
@@ -158,9 +167,22 @@ def main():
         top_k=config.TEST_TOP_K,
         max_length=config.OUT_LEN,
     )
+
+    # get the reference mapping and enrich the predictions with it
+    tails_mapping = retrieve_ref_data(test_data_path)
+
+    def prepare_json_object(r):
+        return json.dumps(
+            {
+                **r,
+                "tails": tails_mapping[create_mapping_key(r["head"], r["relation"])],
+            },
+            ensure_ascii=False,
+        )
+
     write_items(
         os.path.join(results_dir_path, "pred_generations.jsonl"),
-        [json.dumps(r, ensure_ascii=False) for r in pred_generations],
+        [prepare_json_object(r) for r in pred_generations],
     )
 
 

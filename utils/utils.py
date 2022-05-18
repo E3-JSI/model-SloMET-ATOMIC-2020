@@ -62,7 +62,7 @@ def write_csv(filename, data, fieldnames):
         for d in data:
             formatted_d = {}
             for key, val in d.items():
-                formatted_d[key] = json.dumps(val)
+                formatted_d[key] = json.dumps(val, ensure_ascii=False)
             writer.writerow(formatted_d)
 
 
@@ -82,7 +82,7 @@ def write_items(output_file, items):
 
 
 def write_jsonl(f, d):
-    write_items(f, [json.dumps(r, ensure_ascii="utf8") for r in d])
+    write_items(f, [json.dumps(r, ensure_ascii=False) for r in d])
 
 
 def count_relation(d):

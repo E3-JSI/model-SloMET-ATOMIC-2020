@@ -10,42 +10,32 @@ from tabulate import tabulate
 from collections import defaultdict
 
 
-def retrieve_ref_data(test_file_path):
-    df = pd.read_csv(test_file_path, encoding="utf-8", sep="\t")
-    return [
-        {
-            "head": row.Index[0],
-            "relation": row.Index[1],
-            "references": list(filter(lambda x: not pd.isnull(x), row.tail_event)),
-        }
-        for row in df.groupby(["head_event", "relation"]).agg(list).itertuples()
-    ]
+def get_heads_and_relations(filename):
+    with open(filename, encoding="utf8") as file:
+        results = []
+        for line in file:
+            line_data = json.loads(line)
+            results.append(
+                {"head": line_data["head"], "relation": line_data["relation"]}
+            )
+        return results
 
 
-def get_reference_sentences(ref_data):
-    return [ref["references"] for ref in ref_data]
+def get_hypothesises(filename):
+    with open(filename, encoding="utf8") as file:
+        return [json.loads(line)["generations"][0] for line in file]
+
+
+def get_reference_sentences(filename):
+    with open(filename, encoding="utf8") as file:
+        return [json.loads(line)["tails"] for line in file]
 
 
 def postprocess(sentence):
     return sentence
 
 
-def get_heads_and_relations(ref_data):
-    return [{"head": ref["head"], "relation": ref["relation"]} for ref in ref_data]
-
-
-def get_hypothesises(filename):
-    result = []
-    import json
-
-    with open(filename) as file:
-        for line in file:
-            result.append(json.loads(line)["greedy"])
-    return result
-
-
 def preprocess_generations(args):
-    test_file_path = args.test_file_path
     pred_file_path = args.pred_file_path
 
     outfile_path = os.path.join(
@@ -55,9 +45,8 @@ def preprocess_generations(args):
 
     with open(outfile_path, "w", encoding="utf8") as outfile:
 
-        ref_data = retrieve_ref_data(test_file_path)
-        references_list = get_reference_sentences(ref_data)
-        heads_relations = get_heads_and_relations(ref_data)
+        heads_relations = get_heads_and_relations(pred_file_path)
+        references_list = get_reference_sentences(pred_file_path)
         hypothesises = get_hypothesises(pred_file_path)
 
         total_bleu_1 = 0
@@ -102,6 +91,7 @@ def preprocess_generations(args):
             os.path.basename(pred_file_path).split(".")[0] + "_scores.jsonl",
         ),
         "w",
+        encoding="utf8",
     ) as outfile_scores:
         summary = {
             "bleu1": total_bleu_1 / count,
@@ -193,7 +183,6 @@ def toRow(name, results, columns):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--test_file_path", type=str, help="The test file path")
     parser.add_argument("--pred_file_path", type=str, help="The prediction file path")
     args = parser.parse_args()
 
@@ -216,17 +205,12 @@ def main():
         for k in scores.keys():
             assert len(scores[k]) == len(instances)
 
-        results = {
-            "model": m,
-            "scores": s,
-            "all_scores": scores,
-            "instances": instances,
-        }
+        results = {**s}
         write_jsonl(result_file, [results])
 
         scores_per_model.append(results)
-        columns = list(results["scores"].keys())
-        s_row = toRow(results["model"], results["scores"], columns)
+        columns = list(s.keys())
+        s_row = toRow(m, s, columns)
         if add_column:
             rows = [[""] + columns]
             add_column = False
@@ -235,8 +219,6 @@ def main():
     import datetime
 
     date = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
-    print(scores_per_model)
-
     write_jsonl("./results/scores_{}.jsonl".format(date), scores_per_model)
     print(tabulate(rows, headers="firstrow", tablefmt="latex", floatfmt="#.3f"))
     print(tabulate(rows, tablefmt="tsv", floatfmt="#.3f"))

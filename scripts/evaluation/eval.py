@@ -1,3 +1,4 @@
+import json
 from evaluation.bleu.bleu import Bleu
 from evaluation.meteor.meteor_nltk import Meteor
 from evaluation.rouge.rouge import Rouge
@@ -6,10 +7,6 @@ from evaluation.bert_score.bert_score import BertScore
 from collections import defaultdict
 from argparse import ArgumentParser
 
-import sys
-import json
-#reload(sys)
-#sys.setdefaultencoding('utf-8')
 
 class QGEvalCap:
     def __init__(self, model_key, gts, res, results_file=None):
@@ -21,11 +18,11 @@ class QGEvalCap:
     def evaluate(self):
         output = []
         scorers = [
-            (Bleu(4), ["Bleu_1", "Bleu_2", "Bleu_3", "Bleu_4"]),
-            (Meteor(),"METEOR"),
+            (Bleu(4), ["BLEU_1", "BLEU_2", "BLEU_3", "BLEU_4"]),
+            (Meteor(), "METEOR"),
             (Rouge(), "ROUGE_L"),
             (Cider(), "CIDEr"),
-            (BertScore(), "Bert Score")
+            # (BertScore(), "Bert Score"),
         ]
 
         # =================================================
@@ -33,66 +30,68 @@ class QGEvalCap:
         # =================================================
         score_dict = {}
         scores_dict = {}
-        #scores_dict["model_key"] = self.model_key
+        # scores_dict["model_key"] = self.model_key
         for scorer, method in scorers:
             # print 'computing %s score...'%(scorer.method())
             score, scores = scorer.compute_score(self.gts, self.res)
             if type(method) == list:
                 for sc, scs, m in zip(score, scores, method):
-                    #print("%s: %0.5f"%(m, sc))
+                    # print("%s: %0.5f"%(m, sc))
                     output.append(sc)
-                    score_dict[m] = str(sc)
+                    score_dict[m] = float(sc)
                     scores_dict[m] = list(scs)
             else:
-                #print("%s: %0.5f"%(method, score))
+                # print("%s: %0.5f"%(method, score))
                 output.append(score)
                 score_dict[method] = score
                 scores_dict[method] = list(scores)
 
         if self.results_file != None:
             with open(self.results_file, "a") as f:
-                f.write(json.dumps(score_dict)+"\n")
+                f.write(json.dumps(score_dict, ensure_ascii=False) + "\n")
 
         return score_dict, scores_dict
 
+
 def eval(model_key, sources, references, predictions, results_file=None):
     """
-        Given a filename, calculate the metric scores for that prediction file
-        isDin: boolean value to check whether input file is DirectIn.txt
+    Given a filename, calculate the metric scores for that prediction file
+    isDin: boolean value to check whether input file is DirectIn.txt
     """
 
     pairs = []
-    
+
     for tup in sources:
         pair = {}
-        pair['tokenized_sentence'] = tup
+        pair["tokenized_sentence"] = tup
         pairs.append(pair)
 
     cnt = 0
     for line in references:
-        pairs[cnt]['tokenized_question'] = line
+        pairs[cnt]["tokenized_question"] = line
         cnt += 1
 
     output = predictions
 
     for idx, pair in enumerate(pairs):
-        pair['prediction'] = output[idx]
+        pair["prediction"] = output[idx]
 
     ## eval
     from evaluation.eval import QGEvalCap
     import json
     from json import encoder
-    encoder.FLOAT_REPR = lambda o: format(o, '.4f')
+
+    encoder.FLOAT_REPR = lambda o: format(o, ".4f")
 
     res = defaultdict(lambda: [])
     gts = defaultdict(lambda: [])
     for pair in pairs[:]:
-        key = pair['tokenized_sentence']
-        #res[key] = [pair['prediction']]
-        res[key] = pair['prediction']
- 
-        ## gts 
-        gts[key].append(pair['tokenized_question'])
+        key = pair["tokenized_sentence"]
+        # res[key] = [pair['prediction']]
+        res[key] = pair["prediction"]
+
+        ## gts
+        gts[key].append(pair["tokenized_question"])
 
     QGEval = QGEvalCap(model_key, gts, res, results_file)
     return QGEval.evaluate()
@@ -106,7 +105,7 @@ def preprocess(file_name, keys):
     predictions = {}
     references = {}
     sources = {}
-    keys_list = keys if keys!=None else generations["generations"]
+    keys_list = keys if keys != None else generations["generations"]
     for key in keys_list:
         references[key] = []
         predictions[key] = []
@@ -114,7 +113,7 @@ def preprocess(file_name, keys):
 
     for elem in generations:
         label = elem["label"]
-        hyp = elem["hyp"+label]
+        hyp = elem["hyp" + label]
         for key in keys_list:
             if key in elem["generations"]:
                 references[key].append(hyp)
@@ -126,18 +125,24 @@ def preprocess(file_name, keys):
 
 if __name__ == "__main__":
     parser = ArgumentParser()
-    parser.add_argument("-gen_file", "--gen_file", dest="gen_file", help="generations file with gold/references")
-    parser.add_argument("--keys", type=str, default=None, help="comma-separated list of model keys")
+    parser.add_argument(
+        "-gen_file",
+        "--gen_file",
+        dest="gen_file",
+        help="generations file with gold/references",
+    )
+    parser.add_argument(
+        "--keys", type=str, default=None, help="comma-separated list of model keys"
+    )
     parser.add_argument("--results_file", default="eval_results.jsonl")
     args = parser.parse_args()
 
     print("scores: \n")
-    keys=None
+    keys = None
     if args.keys:
         keys = args.keys.split(",")
-    
+
     sources, references, predictions = preprocess(args.gen_file, keys)
     for key in references.keys():
-        print("\nEvaluating %s" %key)
+        print("\nEvaluating %s" % key)
         eval(key, sources[key], references[key], predictions[key], args.results_file)
-
