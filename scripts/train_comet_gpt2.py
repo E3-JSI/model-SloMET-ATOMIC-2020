@@ -9,7 +9,7 @@ from torch.utils.data import DataLoader
 
 
 # Importing the GPT2 modules from huggingface/transformers
-from transformers import GPT2LMHeadModel, GPT2Tokenizer
+from transformers import AutoModelForCausalLM, AutoTokenizer
 
 # WandB – Import the wandb library
 import wandb
@@ -107,7 +107,7 @@ def main():
     # ===========================================
 
     model_name = params["model"]["model_name"]
-    tokenizer = GPT2Tokenizer.from_pretrained(model_name)
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
 
     tokenizer.add_special_tokens(
         {
@@ -176,7 +176,7 @@ def main():
 
     logging.info("Loading model from {}".format(model_name))
 
-    model = GPT2LMHeadModel.from_pretrained(model_name)
+    model = AutoModelForCausalLM.from_pretrained(model_name)
     model.resize_token_embeddings(len(tokenizer))
 
     logging.info("Move model to device {}".format(device))

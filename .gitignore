@@ -168,3 +168,6 @@ wandb/
 .vscode/
 
 results/scores_*
+
+!models_manual/README.md
+models_manual/**/
