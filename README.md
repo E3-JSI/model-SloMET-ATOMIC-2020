@@ -145,7 +145,7 @@ AAAI Conference on Artificial Intelligence, 2021
 - [x] Code for model training
 - [x] Code for model prediction
 - [x] Code for model evaluation
-- [ ] Add support for 3rd party models (outside huggingface)
+- [x] Add support for 3rd party models (outside huggingface)
 - [x] Add `params.yaml` and modify the scripts to read the params from the file
 - [x] Add DVC pipelines for model training and evaluation
 - [ ] Add scripts for storing and retrieving the data set
