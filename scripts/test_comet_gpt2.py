@@ -11,7 +11,7 @@ import torch
 from torch.utils.data import DataLoader
 
 # Importing the GPT2 modules from huggingface/transformers
-from transformers import GPT2LMHeadModel, GPT2Tokenizer
+from transformers import AutoModelForCausalLM, AutoTokenizer
 
 from utils.utils import write_items
 from mosaic.infra.modeling import beam_generations
@@ -117,8 +117,8 @@ def main():
     logging.info("Loading model from {}".format(models_dir_path))
 
     # initialize the model and tokenizer
-    model = GPT2LMHeadModel.from_pretrained(models_dir_path)
-    tokenizer = GPT2Tokenizer.from_pretrained(models_dir_path)
+    model = AutoModelForCausalLM.from_pretrained(models_dir_path)
+    tokenizer = AutoTokenizer.from_pretrained(models_dir_path)
 
     logging.info("Move model to device {}".format(device))
     model = model.to(device)
