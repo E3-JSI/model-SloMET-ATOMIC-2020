@@ -1,5 +1,5 @@
 model:
-  model_name: ./models_manual/slo-gpt-j-6b
+  model_name: macedonizer/sl-gpt2
   IN_LEN: 40
   OUT_LEN: 60
 
