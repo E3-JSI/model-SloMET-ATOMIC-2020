@@ -11,13 +11,13 @@ stages:
       md5: 1aa4a56de15986ff156a5f9916727a22
       size: 55740025
     - path: scripts/train_comet_gpt2.py
-      md5: b1868d2d40345b349d2f90d360c4d1cd
-      size: 8319
+      md5: 3c77c8e3c392d514a6ab46b5aeb61a4c
+      size: 8329
     params:
       params.yaml:
         model.IN_LEN: 40
         model.OUT_LEN: 60
-        model.model_name: macedonizer/sl-gpt2
+        model.model_name: ./models_manual/slo-gpt-j-6b
         train.LEARNING_RATE: 1e-05
         train.SEED: 42
         train.TRAIN_BATCH_SIZE: 64
@@ -25,9 +25,9 @@ stages:
         train.VALID_EPOCHS: 1
     outs:
     - path: models/checkpoint_latest
-      md5: 1097de625e15fb9b485949b35c6d4071.dir
-      size: 517427625
-      nfiles: 7
+      md5: 8aab751c190a9cbef0119c9de8f489b4.dir
+      size: 552080772
+      nfiles: 5
   test:
     cmd: python scripts/test_comet_gpt2.py --test_data_path=./data/atomic_test.tsv
       --models_dir_path=./models/checkpoint_latest --results_dir_path=./results
@@ -36,19 +36,19 @@ stages:
       md5: 80d038c7ce5794b9a338ea1ad4352c21
       size: 8121289
     - path: models/checkpoint_latest
-      md5: 1097de625e15fb9b485949b35c6d4071.dir
-      size: 517427625
-      nfiles: 7
+      md5: 8aab751c190a9cbef0119c9de8f489b4.dir
+      size: 552080772
+      nfiles: 5
     - path: scripts/test_comet_gpt2.py
-      md5: 589245571025f2975b1451217ac85071
-      size: 5571
+      md5: f3ede44e572929c9a51eaa436a7d95fc
+      size: 5581
     params:
       params.yaml:
         test.TEST_TOP_K: 40
     outs:
     - path: results/pred_generations.jsonl
-      md5: 5bf620653cd406aff12df63b85fbaa7b
-      size: 14172860
+      md5: 77eb900d80b55d0a10ac300eaba8e563
+      size: 16107431
   eval:
     cmd: python scripts/eval_comet_gpt2.py --pred_file_path=./results/pred_generations.jsonl
     deps:
@@ -56,16 +56,16 @@ stages:
       md5: 80d038c7ce5794b9a338ea1ad4352c21
       size: 8121289
     - path: results/pred_generations.jsonl
-      md5: 5bf620653cd406aff12df63b85fbaa7b
-      size: 14172860
+      md5: 77eb900d80b55d0a10ac300eaba8e563
+      size: 16107431
     - path: scripts/eval_comet_gpt2.py
       md5: 662330cf041f1dd2ca189e4f5c002d07
       size: 6553
     - path: scripts/evaluation
-      md5: 79f1bd8e8ee371ffb2d5d9ce296f5397.dir
-      size: 6410617
+      md5: 5ecc2436e260cfed981b5235c8adb4ea.dir
+      size: 6410770
       nfiles: 38
     outs:
     - path: results/pred_generations_gens_scores.jsonl
-      md5: ff75cf40b8bf1a5002014ad90217c1ae
-      size: 215
+      md5: b139769b2f49c7d8175bea4fcfbd1de4
+      size: 235
