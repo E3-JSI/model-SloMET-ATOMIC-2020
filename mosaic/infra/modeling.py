@@ -128,10 +128,19 @@ def beam_generations(tokenizer, model, device, loader, top_k=40, max_length=50):
             )
 
             source = [
-                tokenizer.decode(s, clean_up_tokenization_spaces=True) for s in ids
+                re.sub(
+                    r"<[/]*s>",
+                    "",
+                    tokenizer.decode(s, clean_up_tokenization_spaces=True),
+                )
+                for s in ids
             ]
             preds = [
-                tokenizer.decode(g, clean_up_tokenization_spaces=True)
+                re.sub(
+                    r"<[/]*s>",
+                    "",
+                    tokenizer.decode(g, clean_up_tokenization_spaces=True),
+                )
                 for g in generated_ids
             ]
 
