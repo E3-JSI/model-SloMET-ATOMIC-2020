@@ -13,21 +13,26 @@ logger = logging.getLogger("modeling")
 from mosaic.infra.logging import log_eval
 
 
-def train(epoch, tokenizer, model, device, loader, optimizer, val_loader=None):
+def train(
+    epoch,
+    tokenizer,
+    model,
+    device,
+    loader,
+    optimizer,
+    val_loader=None,
+    metric_json=None,
+):
 
     model.train()
     batch_count = len(loader)
 
     for iteration, data in tqdm(enumerate(loader, 0)):
-        y = data["target_ids"].to(device, dtype=torch.long)
-        lm_labels = y[:, 1:].clone().detach()
-        lm_labels[y[:, 1:] == tokenizer.pad_token_id] = -100
         ids = data["source_ids"].to(device, dtype=torch.long)
         mask = data["source_mask"].to(device, dtype=torch.long)
-
         outputs = model(input_ids=ids, attention_mask=mask, labels=ids)
-        loss = outputs[0]
-
+        loss = outputs.loss
+        step = iteration + epoch * len(loader)
         if iteration % 100 == 0:
             batches_left = batch_count - iteration
             logger.info(
@@ -40,6 +45,8 @@ def train(epoch, tokenizer, model, device, loader, optimizer, val_loader=None):
                     "Batches left": batch_count - iteration,
                 }
             )
+            if metric_json:
+                metric_json["train"].append({"train_loss": loss.item(), "step": step})
 
         if iteration % 500 == 0:
             logger.info(
@@ -51,7 +58,9 @@ def train(epoch, tokenizer, model, device, loader, optimizer, val_loader=None):
         optimizer.step()
 
         if iteration % 100 == 0 and val_loader != None:
-            log_eval(tokenizer, model, device, val_loader)
+            val_loss = log_eval(tokenizer, model, device, val_loader)
+            if metric_json:
+                metric_json["valid"].append({"valid_loss": val_loss, "step": step})
             model.train()
 
 
@@ -110,7 +119,6 @@ def beam_generations(tokenizer, model, device, loader, top_k=40, max_length=50):
     records = []
     with torch.no_grad():
         for _, data in enumerate(loader, 0):
-            y = data["target_ids"].to(device, dtype=torch.long)
             ids = data["source_ids"].to(device, dtype=torch.long)
             mask = data["source_mask"].to(device, dtype=torch.long)
 
@@ -135,13 +143,12 @@ def beam_generations(tokenizer, model, device, loader, top_k=40, max_length=50):
                 for g in generated_ids
             ]
 
-            head = " ".join(source[0].split(" ")[:-2])
-            relation = source[0].split(" ")[-2]
+            head_event = re.findall(r"(.*)\[GEN\]", source[0])[0].strip()
+            head = " ".join(head_event.split(" ")[:-1]).strip()
+            relation = head_event.split(" ")[-1].strip()
             preds = [
-                re.sub(f"(\[EOS\]|\[PAD\])", "", pred.split("[GEN]")[1]).strip()
-                for pred in preds
+                re.findall(r"\[GEN\](.*?)\[EOS\]", pred)[0].strip() for pred in preds
             ]
-
             records.append(
                 {
                     "head": head,
@@ -150,7 +157,6 @@ def beam_generations(tokenizer, model, device, loader, top_k=40, max_length=50):
                     "generations": preds,
                 }
             )
-
             if _ % 100 == 0:
                 logger.info(f"Completed {_}")
 

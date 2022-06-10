@@ -14,8 +14,7 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 # WandB – Import the wandb library
 import wandb
 
-from utils.utils import write_items
-from mosaic.infra.modeling import train, beam_generations
+from mosaic.infra.modeling import train
 from mosaic.datasets.KGDataset import KGDataset
 
 # for typing the objects
@@ -89,7 +88,7 @@ def main():
 
     config = wandb.config
     config.TRAIN_BATCH_SIZE = int(params["train"]["TRAIN_BATCH_SIZE"])
-    config.VALID_BATCH_SIZE = 1
+    config.VALID_BATCH_SIZE = int(params["train"]["VALID_BATCH_SIZE"])
     config.TRAIN_EPOCHS = int(params["train"]["TRAIN_EPOCHS"])
     config.VALID_EPOCHS = int(params["train"]["VALID_EPOCHS"])
     config.LEARNING_RATE = float(params["train"]["LEARNING_RATE"])
@@ -204,10 +203,6 @@ def main():
         num_workers=0,
         drop_last=True,
     )
-
-    logger.info(train_dataset.tail_event)
-    logger.info(train_dataset.head())
-
     # prepare the validation dataset
     val_dataset = pd.read_csv(valid_data_path, encoding="utf-8", sep="\t")
     val_dataset = val_dataset[["head_event", "tail_event", "relation"]]
@@ -230,16 +225,20 @@ def main():
         drop_last=True,
     )
 
-    logger.info(val_dataset.tail_event)
-    logger.info(val_dataset.head())
-
     # ===========================================
     # Prepare the optimizer
     # ===========================================
 
-    optimizer = torch.optim.Adam(params=model.parameters(), lr=config.LEARNING_RATE)
+    # use weighted adam optimizer
+    optimizer = torch.optim.AdamW(params=model.parameters(), lr=config.LEARNING_RATE)
 
     logger.info("Initiating Fine-Tuning for the model on our dataset")
+
+    # ===========================================
+    # Prepare the loss evaluation
+    # ===========================================
+
+    train_metrics = {"train": [], "valid": []}
 
     # ===========================================
     # Start the training process
@@ -254,6 +253,7 @@ def main():
             loader=training_loader,
             optimizer=optimizer,
             val_loader=val_loader_mini,
+            metric_json=train_metrics,
         )
         # save the current model checkpoint
         model.save_pretrained("{}/checkpoint_{}".format(models_dir_path, epoch))
@@ -261,6 +261,10 @@ def main():
         # save the model as the latest checkpoint
         model.save_pretrained("{}/checkpoint_latest".format(models_dir_path))
         tokenizer.save_pretrained("{}/checkpoint_latest".format(models_dir_path))
+
+    # store the metrics
+    with open("plots/train_metrics.json", "w", encoding="utf8") as f:
+        json.dump(train_metrics, f, ensure_ascii=False)
 
 
 if __name__ == "__main__":
