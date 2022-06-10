@@ -1,5 +1,5 @@
 model:
-  model_name: ./models_manual/GPT-Janez #macedonizer/sl-gpt2
+  model_name: ./models_manual/GPT-Janez
   IN_LEN: 50
   OUT_LEN: 80
 
