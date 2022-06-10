@@ -106,10 +106,20 @@ The results folder contain the files for both evaluating the generations and the
 evalution results. File `results/pred_generations_gens_scores.jsonl` show the
 performance of the model based on various metrics.
 
+The table below shows the performances of the commonsense models trained using the
+corresponding language model and language data set.
+
+| Language Model      | Language | BLEU-1 | BLEU-2 | BLEU-3 | BLEU-4 | CIDEr | METEOR | ROUGE-L |
+| ------------------- | -------- | :----: | :----: | :----: | :----: | :---: | :----: | :-----: |
+| macedonizer/sl-gpt2 | Slovene  | 0.297  | 0.150  | 0.086  | 0.058  | 0.487 | 0.207  |  0.383  |
+| gpt-janez           | Slovene  | 0.324  | 0.174  | 0.108  | 0.076  | 0.508 | 0.225  |  0.397  |
+| COMET(GPT2-XL)      | English  | 0.407  | 0.248  | 0.171  | 0.124  | 0.653 | 0.292  |  0.485  |
+
 ## 📦️ Integrated models
 
 This project support the following models:
 
+- gpt-janez
 - [macedonizer/sl-gpt2][sl-gpt2]
 
 ## 🚀 Using the trained model
