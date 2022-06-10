@@ -1,8 +1,5 @@
 # Importing stock libraries
-import numpy as np
-import pandas as pd
 import torch
-import torch.nn.functional as F
 from torch.utils.data import Dataset
 
 import logging
@@ -32,27 +29,30 @@ class KGDataset(Dataset):
         ctext = " ".join(ctext.split())
 
         if self.is_eval:
-            source = self.tokenizer.batch_encode_plus(
+            source = self.tokenizer(
                 [text],
-                pad_to_max_length=False,
+                add_special_tokens=False,
                 max_length=self.source_len,
+                truncation="longest_first",
+                padding="do_not_pad",
                 return_tensors="pt",
-                truncation=True,
             )
-            target = self.tokenizer.batch_encode_plus(
+            target = self.tokenizer(
                 [ctext],
-                pad_to_max_length=False,
+                add_special_tokens=False,
                 max_length=self.summ_len,
+                truncation="longest_first",
+                padding="do_not_pad",
                 return_tensors="pt",
-                truncation=True,
             )
         else:
-            source = self.tokenizer.batch_encode_plus(
+            source = self.tokenizer(
                 [text + " " + ctext],
-                pad_to_max_length=True,
+                add_special_tokens=False,
                 max_length=self.source_len + self.summ_len,
+                truncation="longest_first",
+                padding="max_length",
                 return_tensors="pt",
-                truncation=True,
             )
             target = source
 

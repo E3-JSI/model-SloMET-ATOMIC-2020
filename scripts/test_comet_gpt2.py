@@ -151,9 +151,6 @@ def main():
         drop_last=False,
     )
 
-    logger.info(test_dataset.tail_event)
-    logger.info(test_dataset.head())
-
     # ===========================================
     # Start the training process
     # ===========================================
