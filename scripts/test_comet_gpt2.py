@@ -75,7 +75,7 @@ def main():
 
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--test_data_path", type=str, help="The path to the training data"
+        "--test_data_path", type=str, help="The path to the test data"
     )
     parser.add_argument(
         "--models_dir_path",
