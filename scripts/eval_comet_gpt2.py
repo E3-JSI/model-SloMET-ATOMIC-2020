@@ -23,7 +23,7 @@ def get_heads_and_relations(filename):
 
 def get_hypothesises(filename):
     with open(filename, encoding="utf8") as file:
-        return [json.loads(line)["generations"][0] for line in file]
+        return [json.loads(line)["generations"][0] for line in file if (len(json.loads(line)["generations"])!=0)]
 
 
 def get_reference_sentences(filename):

@@ -166,8 +166,13 @@ data/
 models/
 wandb/
 .vscode/
+.vs/
+
+results/AdrianResults
+results/ErikResults
 
 results/scores_*
 
 !models_manual/README.md
 models_manual/**/
+*.pyproj
