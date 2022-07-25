@@ -106,7 +106,6 @@ def main():
     # ===========================================
 
     model_name = params["model"]["model_name"]
-    #model_name = "macedonizer/sl-gpt2"
     tokenizer = AutoTokenizer.from_pretrained(model_name)
 
     tokenizer.add_special_tokens(

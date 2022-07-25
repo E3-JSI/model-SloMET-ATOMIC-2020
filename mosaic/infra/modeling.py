@@ -147,7 +147,9 @@ def beam_generations(tokenizer, model, device, loader, top_k=40, max_length=50):
             head = " ".join(head_event.split(" ")[:-1]).strip()
             relation = head_event.split(" ")[-1].strip()
             preds = [
-                re.findall(r"\[GEN\](.*?)\[EOS\]", pred)[0].strip() for pred in preds if (len(re.findall(r"\[GEN\](.*?)\[EOS\]", pred))!=0)
+                re.findall(r"\[GEN\](.*?)\[EOS\]", pred)[0].strip()
+                for pred in preds
+                if len(re.findall(r"\[GEN\](.*?)\[EOS\]", pred))
             ]
             records.append(
                 {
