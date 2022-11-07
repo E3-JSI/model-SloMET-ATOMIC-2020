@@ -109,17 +109,21 @@ performance of the model based on various metrics.
 The table below shows the performances of the commonsense models trained using the
 corresponding language model and language data set.
 
-| Language Model      | Language | BLEU-1 | BLEU-2 | BLEU-3 | BLEU-4 | CIDEr | METEOR | ROUGE-L |
-| ------------------- | -------- | :----: | :----: | :----: | :----: | :---: | :----: | :-----: |
-| macedonizer/sl-gpt2 | Slovene  | 0.297  | 0.150  | 0.086  | 0.058  | 0.487 | 0.207  |  0.383  |
-| gpt-janez           | Slovene  | 0.324  | 0.174  | 0.108  | 0.076  | 0.508 | 0.225  |  0.397  |
-| COMET(GPT2-XL)      | English  | 0.407  | 0.248  | 0.171  | 0.124  | 0.653 | 0.292  |  0.485  |
+| Language Model          | Model Lang | Data Lang | BLEU-1 | BLEU-2 | BLEU-3 | BLEU-4 | CIDEr  | METEOR | ROUGE-L |
+| ----------------------- | ---------- | --------- | :----: | :----: | :----: | :----: | :----: | :----: | :-----: |
+| Milos/slovak-gpt-j-162M | Slovak     | Slovene   | 0.158  | 0.068  | 0.033  | 0.020  | 0.236  | 0.106  |  0.194  |
+| EleutherAI/gpt-neo-125M | English    | Slovene   | 0.263  | 0.128  | 0.051  | 0.023  | 0.431  | 0.184  |  0.351  |
+| macedonizer/sl-gpt2     | Slovene    | Slovene   | 0.297  | 0.150  | 0.086  | 0.058  | 0.487  | 0.207  |  0.383  |
+| gpt-janezek             | Slovene    | Slovene   | 0.301  | 0.148  | 0.082  | 0.053  | 0.490  | 0.210  |  0.388  |
+| gpt-janez               | Slovene    | Slovene   | 0.324  | 0.174  | 0.108  | 0.076  | 0.508  | 0.225  |  0.397  |
+| COMET(GPT2-XL)          | English    | English   | 0.407  | 0.248  | 0.171  | 0.124  | 0.653  | 0.292  |  0.485  |
 
 ## 📦️ Integrated models
 
 This project support the following models:
 
 - gpt-janez
+- gpt-janezek (smaller version of the gpt-janez)
 - [macedonizer/sl-gpt2][sl-gpt2]
 
 ## 🚀 Using the trained model
@@ -134,8 +138,8 @@ from transformers import GPT2LMHeadModel, GPT2Tokenizer
 MODEL_DIR_PATH = "./models/checkpoint_latest"
 
 # initialize the model and tokenizer with the trained data
-model = GPT2LMHeadModel.from_pretrained(MODEL_DATA_PATH)
-tokenizer = GPT2Tokenizer.from_pretrained(MODEL_DATA_PATH)
+model = GPT2LMHeadModel.from_pretrained(MODEL_DIR_PATH)
+tokenizer = GPT2Tokenizer.from_pretrained(MODEL_DIR_PATH)
 ```
 
 ## 📚 Papers

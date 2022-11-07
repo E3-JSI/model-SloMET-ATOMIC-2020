@@ -1,5 +1,5 @@
 model:
-  model_name: ./models_manual/GPT-Janez
+  model_name: facebook/mbart-large-50
   IN_LEN: 50
   OUT_LEN: 80
 

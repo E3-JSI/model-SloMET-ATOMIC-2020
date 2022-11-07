@@ -126,7 +126,7 @@ def beam_generations(tokenizer, model, device, loader, top_k=40, max_length=50):
                 input_ids=ids,
                 attention_mask=mask,
                 temperature=1.0,
-                do_sample=False,
+                do_sample=True,
                 max_length=max_length,
                 top_p=0.9,
                 top_k=top_k,
