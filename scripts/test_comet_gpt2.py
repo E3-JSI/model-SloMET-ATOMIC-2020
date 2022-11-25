@@ -17,6 +17,8 @@ from utils.utils import write_items
 from mosaic.infra.modeling import beam_generations
 from mosaic.datasets.KGDataset import KGDataset
 
+from utils.config import Config
+
 # for typing the objects
 from typing import List
 
@@ -52,13 +54,6 @@ def retrieve_ref_data(test_file_path):
         )
         for row in df.groupby(["head_event", "relation"]).agg(list).itertuples()
     }
-
-
-class Config:
-    """Configuration parameters container class"""
-
-    pass
-
 
 # ===============================================
 # Import parameters

@@ -88,7 +88,7 @@ def main():
 
     config = wandb.config
     config.TRAIN_BATCH_SIZE = int(params["train"]["TRAIN_BATCH_SIZE"])
-    config.VALID_BATCH_SIZE = int(params["train"]["VALID_BATCH_SIZE"])
+    config.VALID_BATCH_SIZE = 1
     config.TRAIN_EPOCHS = int(params["train"]["TRAIN_EPOCHS"])
     config.VALID_EPOCHS = int(params["train"]["VALID_EPOCHS"])
     config.LEARNING_RATE = float(params["train"]["LEARNING_RATE"])

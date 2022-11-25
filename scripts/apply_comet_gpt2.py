@@ -10,9 +10,7 @@ from torch.utils.data import DataLoader
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
 from mosaic.infra.modeling import beam_generations
-
-# for typing the objects
-from typing import List
+from utils.config import Config
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
@@ -35,12 +33,6 @@ logger.info(torch.cuda.device_count())
 # ===============================================
 
 params = yaml.safe_load(open("params.yaml"))
-
-
-class Config:
-    """Configuration parameters container class"""
-
-    pass
 
 
 # ===============================================

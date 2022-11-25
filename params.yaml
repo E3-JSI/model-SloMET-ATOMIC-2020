@@ -1,14 +1,12 @@
 model:
-  model_name: facebook/mbart-large-50
+  model_name: cjvt/gpt-sl-base
   IN_LEN: 50
   OUT_LEN: 80
 
 train:
   SEED: 42
-  TRAIN_BATCH_SIZE: 64
-  VALID_BATCH_SIZE: 1
+  TRAIN_BATCH_SIZE: 32
   TRAIN_EPOCHS: 3
-  VALID_EPOCHS: 1
   LEARNING_RATE: 0.00001
 
 test:

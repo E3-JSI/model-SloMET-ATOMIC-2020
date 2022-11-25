@@ -1,10 +1,19 @@
 stages:
+  get_data:
+    cmd: curl --remote-name-all https://www.clarin.si/repository/xmlui/bitstream/handle/11356/1724{/sloatomic2020.zip} && unzip -o sloatomic2020.zip -d ./data && rm -f sloatomic2020.zip
+    outs:
+      - data/sloatomic_train.tsv
+      - data/sloatomic_dev.tsv
+      - data/sloatomic_test.tsv.automatic_all
+      - data/sloatomic_test.tsv.automatic_10k
+      - data/sloatomic_test.tsv.manual_10k
+
   train:
-    cmd: python scripts/train_comet_gpt2.py --train_data_path=./data/atomic_train.tsv --valid_data_path=./data/atomic_dev.tsv --models_dir_path=./models
+    cmd: python scripts/train_comet_gpt2.py --train_data_path=./data/sloatomic_train.tsv --valid_data_path=./data/sloatomic_dev.tsv --models_dir_path=./models
     deps:
       - scripts/train_comet_gpt2.py
-      - data/atomic_train.tsv
-      - data/atomic_dev.tsv
+      - data/sloatomic_train.tsv
+      - data/sloatomic_dev.tsv
     params:
       - model.model_name
       - model.IN_LEN
@@ -12,7 +21,6 @@ stages:
       - train.SEED
       - train.TRAIN_BATCH_SIZE
       - train.TRAIN_EPOCHS
-      - train.VALID_EPOCHS
       - train.LEARNING_RATE
     outs:
       - models/checkpoint_latest
@@ -21,11 +29,11 @@ stages:
           cache: false
 
   test:
-    cmd: python scripts/test_comet_gpt2.py --test_data_path=./data/atomic_test.tsv --models_dir_path=./models/checkpoint_latest --results_dir_path=./results
+    cmd: python scripts/test_comet_gpt2.py --test_data_path=./data/sloatomic_test.tsv.manual_10k --models_dir_path=./models/checkpoint_latest --results_dir_path=./results
     deps:
       - scripts/test_comet_gpt2.py
       - models/checkpoint_latest
-      - data/atomic_test.tsv
+      - data/sloatomic_test.tsv.manual_10k
     params:
       - test.TEST_TOP_K
     outs:
@@ -36,7 +44,7 @@ stages:
     deps:
       - scripts/eval_comet_gpt2.py
       - scripts/evaluation
-      - data/atomic_test.tsv
+      - data/sloatomic_test.tsv.manual_10k
       - results/pred_generations.jsonl
     metrics:
       - results/pred_generations_gens_scores.jsonl:
