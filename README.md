@@ -169,6 +169,8 @@ An example of how it can be used is found in the [scripts/apply_comet_gpt2.py](s
 
 This project made the following commonsense reasoning model available.
 
+TODO: point to the actual commonsense reasoning model. Currently pointing to the language model use to finetune.
+
 - [cjvt/gpt-sl-base][cjvt/gpt-sl-base]
 
 ## 📚 Papers
