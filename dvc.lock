@@ -1,66 +1,65 @@
 schema: '2.0'
 stages:
   train:
-    cmd: python scripts/train_comet_gpt2.py --train_data_path=./data/atomic_train.tsv
-      --valid_data_path=./data/atomic_dev.tsv --models_dir_path=./models
+    cmd: python scripts/train_comet_gpt2.py --train_data_path=./data/sloatomic_train.tsv
+      --valid_data_path=./data/sloatomic_dev.tsv --models_dir_path=./models
     deps:
-    - path: data/atomic_dev.tsv
+    - path: data/sloatomic_dev.tsv
       md5: 96881c451979ffc2344f193c26b58ebc
       size: 5486836
-    - path: data/atomic_train.tsv
+    - path: data/sloatomic_train.tsv
       md5: 1aa4a56de15986ff156a5f9916727a22
       size: 55740025
     - path: scripts/train_comet_gpt2.py
-      md5: d7bffb2dd2b25a8d93914c0a06bf5625
-      size: 8567
+      md5: 69497637b766f578bec3ed6fddb0c95c
+      size: 8464
     params:
       params.yaml:
         model.IN_LEN: 50
         model.OUT_LEN: 80
-        model.model_name: EleutherAI/gpt-neo-125M
+        model.model_name: cjvt/gpt-sl-base
         train.LEARNING_RATE: 1e-05
         train.SEED: 42
-        train.TRAIN_BATCH_SIZE: 64
+        train.TRAIN_BATCH_SIZE: 32
         train.TRAIN_EPOCHS: 3
-        train.VALID_EPOCHS: 1
     outs:
     - path: models/checkpoint_latest
-      md5: ac8581d3398d697c20b4714010c0bce8.dir
-      size: 554727201
-      nfiles: 8
+      md5: ba2adb74b40e62c7b33d082bfaa07f8f.dir
+      size: 544445695
+      nfiles: 5
     - path: plots/train_metrics.json
-      md5: 14e449cf8c18461ae28743142e90ffe2
-      size: 48839
+      md5: ad30a7abdd5342e02717677518cc6ab3
+      size: 98048
   test:
-    cmd: python scripts/test_comet_gpt2.py --test_data_path=./data/atomic_test.tsv
+    cmd: python scripts/test_comet_gpt2.py --test_data_path=./data/sloatomic_test.tsv.manual_10k
       --models_dir_path=./models/checkpoint_latest --results_dir_path=./results
     deps:
-    - path: data/atomic_test.tsv
-      md5: 80d038c7ce5794b9a338ea1ad4352c21
-      size: 8121289
+    - path: data/sloatomic_test.tsv.manual_10k
+      md5: 33d212cb43eb5ab1807168cf5c8d335a
+      size: 516915
     - path: models/checkpoint_latest
-      md5: ac8581d3398d697c20b4714010c0bce8.dir
-      size: 554727201
-      nfiles: 8
+      md5: ba2adb74b40e62c7b33d082bfaa07f8f.dir
+      size: 544445695
+      nfiles: 5
     - path: scripts/test_comet_gpt2.py
-      md5: 0e387c82ecbc6ee426f13c7d29986983
-      size: 5495
+      md5: 3430061bd0cee9ac8468cce73bab2986
+      size: 5445
     params:
       params.yaml:
         test.TEST_TOP_K: 40
     outs:
     - path: results/pred_generations.jsonl
-      md5: 33c727fac4f5e590938f39f971436459
-      size: 11040470
+      md5: b0038a7457baef01421c1584bab99935
+      size: 724767
   eval:
     cmd: python scripts/eval_comet_gpt2.py --pred_file_path=./results/pred_generations.jsonl
     deps:
-    - path: data/atomic_test.tsv
-      md5: 80d038c7ce5794b9a338ea1ad4352c21
-      size: 8121289
+    - path: data/sloatomic_test.tsv.manual_10k
+      md5: 33d212cb43eb5ab1807168cf5c8d335a
+      size: 516915
     - path: results/pred_generations.jsonl
-      md5: 33c727fac4f5e590938f39f971436459
-      size: 11040470
+      md5: b0038a7457baef01421c1584bab99935
+      size: 724767
     - path: scripts/eval_comet_gpt2.py
       md5: e36df185d48b87e4de759f1630105a1c
       size: 6639
@@ -70,5 +69,24 @@ stages:
       nfiles: 38
     outs:
     - path: results/pred_generations_gens_scores.jsonl
-      md5: 4994b99e859e82180682910fae06bef3
-      size: 218
+      md5: 31cd4f13d8aa4e04cccbc87e5b42d493
+      size: 216
+  get_data:
+    cmd: curl --remote-name-all https://www.clarin.si/repository/xmlui/bitstream/handle/11356/1724{/sloatomic2020.zip}
+      && unzip -o sloatomic2020.zip -d ./data && rm -f sloatomic2020.zip
+    outs:
+    - path: data/sloatomic_dev.tsv
+      md5: 96881c451979ffc2344f193c26b58ebc
+      size: 5486836
+    - path: data/sloatomic_test.tsv.automatic_10k
+      md5: 12f0570559d20f9aa4b991fb87ba2c41
+      size: 536261
+    - path: data/sloatomic_test.tsv.automatic_all
+      md5: 80d038c7ce5794b9a338ea1ad4352c21
+      size: 8121289
+    - path: data/sloatomic_test.tsv.manual_10k
+      md5: 33d212cb43eb5ab1807168cf5c8d335a
+      size: 516915
+    - path: data/sloatomic_train.tsv
+      md5: 1aa4a56de15986ff156a5f9916727a22
+      size: 55740025
