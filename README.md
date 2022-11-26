@@ -183,18 +183,6 @@ SiKDD Slovenian KDD Conference, 2022.
 Jena D. Hwang, Chandra Bhagavatula, Ronan Le Bras, Jeff Da, Keisuke Sakaguchi, Antoine Bosselut, Yejin Choi
 AAAI Conference on Artificial Intelligence, 2021.
 
-## 🚧 Work In Progress
-
-- [x] Setup script
-- [x] Folder structure
-- [x] Code for model training
-- [x] Code for model prediction
-- [x] Code for model evaluation
-- [x] Add support for 3rd party models (outside huggingface)
-- [x] Add `params.yaml` and modify the scripts to read the params from the file
-- [x] Add DVC pipelines for model training and evaluation
-- [x] Add scripts for storing and retrieving the data set
-
 ## 📣 Acknowledgments
 
 This work is developed by [Department of Artificial Intelligence][ailab] at [Jozef Stefan Institute][ijs].
@@ -205,7 +193,7 @@ The work is supported by the Slovenian Research Agency and the [RSDO][rsdo] proj
 [conda]: https://www.anaconda.com/
 [git]: https://git-scm.com/
 [dvc]: https://dvc.org/
-[sloatomic-data]: TODO
+[sloatomic-data]: http://hdl.handle.net/11356/1724
 [atomic-2020]: https://allenai.org/data/atomic-2020
 [deepl]: https://www.deepl.com/translator
 [sl-gpt2]: https://huggingface.co/macedonizer/sl-gpt2
