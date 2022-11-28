@@ -167,13 +167,13 @@ An example of how it can be used is found in the [scripts/apply_comet_gpt2.py](s
 
 ## 📦️ Available models
 
-This project made the following commonsense reasoning model available.
+This project made the following commonsense reasoning model available:
 
-TODO: point to the actual commonsense reasoning model. Currently pointing to the language model use to finetune.
-
-- [cjvt/gpt-sl-base][cjvt/gpt-sl-base]
+- [SloMET-ATOMIC-2020][sloatomic-model]
 
 ## 📚 Papers
+
+If using this code, please cite the following papers:
 
 **[SLOmet - Slovenian Commonsense Description.][published-paper]**
 Adrian Mladenić Grobelnik, Erik NOvak, Dunja Mladenić, Marko Grobelnik
@@ -199,8 +199,7 @@ The work is supported by the Slovenian Research Agency and the [RSDO][rsdo] proj
 [atomic-2020]: https://allenai.org/data/atomic-2020
 [deepl]: https://www.deepl.com/translator
 [sl-gpt2]: https://huggingface.co/macedonizer/sl-gpt2
-[cjvt/gpt-sl-base]: https://huggingface.co/cjvt/gpt-sl-base
-[sloatomic-models]: TODO
+[sloatomic-model]: http://hdl.handle.net/11356/1729
 [published-paper]: https://ailab.ijs.si/dunja/SiKDD2022/Papers/SiKDD2022_paper_5674.pdf
 [official-comet-atomic]: https://www.semanticscholar.org/paper/COMET-ATOMIC-2020%3A-On-Symbolic-and-Neural-Knowledge-Hwang-Bhagavatula/e39503e01ebb108c6773948a24ca798cd444eb62
 [ailab]: http://ailab.ijs.si/
