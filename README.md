@@ -176,7 +176,7 @@ This project made the following commonsense reasoning model available:
 If using this code, please cite the following papers:
 
 **[SLOmet - Slovenian Commonsense Description.][published-paper]**
-Adrian Mladenić Grobelnik, Erik NOvak, Dunja Mladenić, Marko Grobelnik
+Adrian Mladenić Grobelnik, Erik Novak, Dunja Mladenić, Marko Grobelnik
 SiKDD Slovenian KDD Conference, 2022.
 
 ### 📓 Related Work
